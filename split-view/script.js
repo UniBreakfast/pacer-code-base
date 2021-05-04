@@ -2,6 +2,8 @@ import { SplitView } from './SplitView.js'
 
 const options = {
   // direction: 'column',
+  // direction: 'row-reverse',
+  // direction: 'column-reverse',
   // padding: 0,
   // borderWidth: 2,
   // borderRadius: 20,
