@@ -4,6 +4,7 @@ export class SplitView {
     this.props = {...splitViewDefaults, ...options}
     this.render()
     this.listen()
+    this.updateLinks()
   }
 
   render() {
@@ -27,10 +28,10 @@ export class SplitView {
   }
 
   moveSplitter(pos) {
-    let [sect1, _, sect2] = this.el.children
+    let [sect1,, sect2] = this.el.children
     const {direction, padding, gap} = this.props
     const sectionSpace = padding * -4 - gap +
-      this.el['client' + (direction == "row" ? 'Width' : 'Height')]
+      this.el['client' + (direction.includes("row") ? 'Width' : 'Height')]
     const startPos = padding + gap/2 + this.el.getBoundingClientRect()[direction.includes("row") ? 'left' : 'top']
 
     if (pos !== undefined) this.props.portion = (pos - startPos) / sectionSpace
@@ -48,6 +49,25 @@ export class SplitView {
     this.props.direction = next(this.props.direction)
     applyInlineStyling(this.el, this.props)
     this.moveSplitter()
+    this.updateLinks()
+  }
+
+  updateLinks() {
+    ['topSection','leftSection','rightSection','bottomSection']
+      .forEach(side => delete this[side])
+    switch (this.props.direction) {
+      case 'row':
+        [this.leftSection,, this.rightSection] = this.el.children
+        break;
+      case 'column':
+        [this.topSection,, this.bottomSection] = this.el.children
+        break;
+      case 'row-reverse':
+        [this.rightSection,, this.leftSection] = this.el.children
+        break;
+      case 'column-reverse':
+        [this.bottomSection,, this.topSection] = this.el.children
+    }
   }
 }
 
@@ -59,10 +79,14 @@ const splitViewDefaults = {
   borderWidth: 1,
   borderColor: 'gray',
   borderRadius: 5,
-  btnDelay: 2500,
 }
 
 const directions = ['row', 'column', 'row-reverse', 'column-reverse']
+
+const svProps = {display: 'flex', width: '100%', height: '100%',
+  boxSizing: 'border-box'}
+const sectProps = {overflow: 'auto'}
+const splitProps = {userSelect: 'none'}
 
 function next(direction) {
   return directions[(directions.indexOf(direction) + 1) % 4]
@@ -84,19 +108,14 @@ function applyInlineStyling(el, props) {
   const [sect1, splitter, sect2] = el.children
   const { direction, padding, gap,
           borderWidth, borderColor, borderRadius } = props
-  el.style = `
-    width:100%; height:100%; box-sizing: border-box; display:flex;
-    flex-direction:${direction};
-  `
-  splitter.style = `
-    display: flex; justify-content: center; align-items: center;
-    ${direction.startsWith("row") ? `width: ${gap}px; cursor: col-resize`
-      : `height: ${gap}px; cursor: row-resize`}; user-select: none;
-  `
-  sect1.style = sect2.style = `
-    border: ${borderWidth}px solid ${borderColor};
-    border-radius: ${borderRadius}px; overflow: auto;
-  `
+  Object.assign(el.style, svProps, {flexDirection: direction})
+  Object.assign(splitter.style, splitProps, direction.startsWith("row") ?
+    {width: gap + 'px', height: null, cursor: 'col-resize'} :
+      {width: null, height: gap + 'px', cursor: 'row-resize'})
+  for (const sect of [sect1, sect2])
+    Object.assign(sect.style, sectProps, {borderRadius: borderRadius + 'px',
+      border: `${borderWidth}px solid ${borderColor}`})
+
   if (padding) el.style.padding = padding + 'px'
   else if (direction.startsWith("row")) {
     sect1.style.borderWidth =
