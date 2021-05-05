@@ -8,7 +8,11 @@ export class SplitView {
   }
 
   render() {
-    if (!this.el) this.el = buildSplitView(this.props.direction)
+    if (!this.el) {
+      this.el = document.createElement('splitview')
+      this.el.innerHTML =
+        '<section></section><splitter></splitter><section></section>'
+    }
     this.parent.append(this.el)
     applyInlineStyling(this.el, this.props)
     this.moveSplitter()
@@ -71,6 +75,7 @@ export class SplitView {
   }
 }
 
+
 const splitViewDefaults = {
   direction: 'row',
   portion: 0.3,
@@ -83,38 +88,23 @@ const splitViewDefaults = {
 
 const directions = ['row', 'column', 'row-reverse', 'column-reverse']
 
-const svProps = {display: 'flex', width: '100%', height: '100%',
-  boxSizing: 'border-box'}
-const sectProps = {overflow: 'auto'}
-const splitProps = {userSelect: 'none'}
-
 function next(direction) {
   return directions[(directions.indexOf(direction) + 1) % 4]
-}
-
-function buildSplitView(direction) {
-  const div = document.createElement('div')
-  div.innerHTML = `
-    <splitview>
-      <section></section>
-      <splitter></splitter>
-      <section></section>
-    </splitview>
-  `
-  return div.firstElementChild
 }
 
 function applyInlineStyling(el, props) {
   const [sect1, splitter, sect2] = el.children
   const { direction, padding, gap,
           borderWidth, borderColor, borderRadius } = props
-  Object.assign(el.style, svProps, {flexDirection: direction})
-  Object.assign(splitter.style, splitProps, direction.startsWith("row") ?
-    {width: gap + 'px', height: null, cursor: 'col-resize'} :
-      {width: null, height: gap + 'px', cursor: 'row-resize'})
+  Object.assign(el.style, {display: 'flex', flexDirection: direction,
+    boxSizing: 'border-box', width: '100%', height: '100%'})
+  Object.assign(splitter.style, {userSelect: 'none'},
+    direction.startsWith("row")
+      ? {width: gap + 'px', height: null, cursor: 'col-resize'}
+      : {width: null, height: gap + 'px', cursor: 'row-resize'})
   for (const sect of [sect1, sect2])
-    Object.assign(sect.style, sectProps, {borderRadius: borderRadius + 'px',
-      border: `${borderWidth}px solid ${borderColor}`})
+    Object.assign(sect.style, {borderRadius: borderRadius + 'px',
+      border: `${borderWidth}px solid ${borderColor}`, overflow: 'auto'})
 
   if (padding) el.style.padding = padding + 'px'
   else if (direction.startsWith("row")) {
