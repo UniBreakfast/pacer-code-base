@@ -12,6 +12,7 @@ export class SplitView {
       this.el = document.createElement('splitview')
       this.el.innerHTML =
         '<section></section><splitter></splitter><section></section>'
+      this.el.instance = this
     }
     this.parent.append(this.el)
     applyInlineStyling(this.el, this.props)
@@ -22,8 +23,11 @@ export class SplitView {
     const splitter = this.el.querySelector('splitter')
 
     splitter.onmousedown = ({altKey}) => {
-      if (altKey) return this.rotate()
-
+      if (altKey) {
+        this.el.querySelectorAll('splitview')
+          .forEach(view => view.instance.rotate())
+        return this.rotate()
+      }
       this.el.onmousemove = ({x, y}) =>
         this.moveSplitter(this.props.direction.includes('row') ? x : y)
       this.el.onmouseleave = this.el.onmouseup =
@@ -57,35 +61,24 @@ export class SplitView {
   }
 
   updateLinks() {
-    ['topSection','leftSection','rightSection','bottomSection']
-      .forEach(side => delete this[side])
+    ['top','left','right','bottom'].forEach(side => delete this[side+'Section'])
+    const {children} = this.el
     switch (this.props.direction) {
-      case 'row':
-        [this.leftSection,, this.rightSection] = this.el.children
-        break;
-      case 'column':
-        [this.topSection,, this.bottomSection] = this.el.children
-        break;
+      case 'row': return [this.leftSection,, this.rightSection] = children
+      case 'column': return [this.topSection,, this.bottomSection] = children
       case 'row-reverse':
-        [this.rightSection,, this.leftSection] = this.el.children
-        break;
+        return [this.rightSection,, this.leftSection] = children
       case 'column-reverse':
-        [this.bottomSection,, this.topSection] = this.el.children
+        return [this.bottomSection,, this.topSection] = children
     }
   }
 }
 
 
 const splitViewDefaults = {
-  direction: 'row',
-  portion: 0.3,
-  padding: 6,
-  gap: 6,
-  borderWidth: 1,
-  borderColor: 'gray',
-  borderRadius: 5,
+  direction: 'row',  portion: 0.3,  padding: 6,  gap: 6,
+  borderWidth: 1,  borderColor: 'gray',  borderRadius: 5,
 }
-
 const directions = ['row', 'column', 'row-reverse', 'column-reverse']
 
 function next(direction) {
@@ -107,24 +100,15 @@ function applyInlineStyling(el, props) {
       border: `${borderWidth}px solid ${borderColor}`, overflow: 'auto'})
 
   if (padding) el.style.padding = padding + 'px'
-  else if (direction.startsWith("row")) {
-    sect1.style.borderWidth =
-      doBorder(direction.endsWith("reverse") ? 'left' : 'right', borderWidth)
-    sect2.style.borderWidth =
-      doBorder(direction.endsWith("reverse") ? 'right' : 'left', borderWidth)
-  } else {
-    sect1.style.borderWidth =
-      doBorder(direction.endsWith("reverse") ? 'top' : 'bottom', borderWidth)
-    sect2.style.borderWidth =
-      doBorder(direction.endsWith("reverse") ? 'bottom' : 'top', borderWidth)
-  }
-}
-
-function doBorder(side, width) {
-  switch (side) {
-    case 'top': return `${width}px 0 0 0`
-    case 'left': return `0 0 0 ${width}px`
-    case 'right': return `0 ${width}px 0 0`
-    case 'bottom': return `0 0 ${width}px 0`
+  else {
+    [sect1, sect2].forEach(section => section.style.borderWidth = 0)
+    if (direction == 'row') sect1.style.borderRightWidth =
+      sect2.style.borderLeftWidth = borderWidth + 'px'
+    else if (direction == 'column') sect1.style.borderBottomWidth =
+      sect2.style.borderTopWidth = borderWidth + 'px'
+    else if (direction == 'row-reverse') sect2.style.borderRightWidth =
+      sect1.style.borderLeftWidth = borderWidth + 'px'
+    else if (direction == 'column-reverse') sect2.style.borderBottomWidth =
+      sect1.style.borderTopWidth = borderWidth + 'px'
   }
 }
