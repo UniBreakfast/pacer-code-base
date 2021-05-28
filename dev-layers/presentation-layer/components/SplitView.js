@@ -1,7 +1,6 @@
-throw 'newer version was in dev-layers/presentation-layer/components'
-
-export class SplitView {
+export class SplitView extends EventTarget {
   constructor (parent, options={}) {
+    super()
     this.parent = parent
     this.props = {...splitViewDefaults, ...options}
     this.render()
@@ -15,6 +14,7 @@ export class SplitView {
       this.el.innerHTML =
         '<section></section><splitter></splitter><section></section>'
       this.el.instance = this
+      !([this.section1,, this.section2] = this.el.children)
     }
     this.parent.append(this.el)
     applyInlineStyling(this.el, this.props)
@@ -53,6 +53,7 @@ export class SplitView {
     }
     sect1.style.flex = part1
     sect2.style.flex = sectionSpace - part1
+    this.dispatchEvent(new Event('change'))
   }
 
   rotate() {

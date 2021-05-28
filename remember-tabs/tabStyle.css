@@ -1,0 +1,70 @@
+:root {
+  --tab-bg: white;
+  --tab-radius: 8px;
+}
+
+tabgroup {
+  gap: 0;
+}
+
+tabgroup[side="left"]>tabbuttons, tabgroup[side="right"]>tabbuttons {
+  padding: var(--tab-radius) 0;
+}
+
+tabgroup[side="top"]>tabbuttons, tabgroup[side="bottom"]>tabbuttons {
+  padding: 0 8px;
+}
+
+tabgroup[side="top"]>tabbuttons>button {
+  border: 1px solid;
+  border-radius: var(--tab-radius) var(--tab-radius) 0 0;
+  transform: translateY(1px);
+}
+tabgroup[side="top"]>tabbuttons>button:disabled,
+tabgroup[side="top"]>tabbuttons>button[active] {
+  border-bottom-color: transparent;
+}
+
+tabgroup[side="right"]>tabbuttons>button {
+  border: 1px solid;
+  border-radius: 0 var(--tab-radius) var(--tab-radius) 0;
+  transform: translateX(-1px);
+}
+tabgroup[side="right"]>tabbuttons>button:disabled,
+tabgroup[side="right"]>tabbuttons>button[active] {
+  border-left-color: var(--tab-bg);
+}
+
+tabgroup[side="bottom"]>tabbuttons>button {
+  border: 1px solid;
+  border-radius: 0 0 var(--tab-radius) var(--tab-radius);
+  transform: translateY(-1px);
+}
+tabgroup[side="bottom"]>tabbuttons>button:disabled,
+tabgroup[side="bottom"]>tabbuttons>button[active] {
+  border-top-color: var(--tab-bg);
+}
+
+tabgroup[side="left"]>tabbuttons>button {
+  border: 1px solid;
+  border-radius: var(--tab-radius) 0 0 var(--tab-radius);
+  transform: translateX(1px);
+}
+tabgroup[side="left"]>tabbuttons>button:disabled,
+tabgroup[side="left"]>tabbuttons>button[active] {
+  border-right-color: var(--tab-bg);
+}
+
+tabbuttons>button {
+  padding: 4px 7px;
+  background: #ccc4;
+}
+tabbuttons>button:disabled, tabbuttons>button[active] {
+  background: var(--tab-bg);
+}
+
+tabs {
+  border: 1px solid;
+  border-radius: var(--tab-radius);
+  padding: 9px 12px;
+}

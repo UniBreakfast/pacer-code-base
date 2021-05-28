@@ -1,0 +1,7 @@
+body>tabgroup {
+  min-height: 70vh;
+  max-height: 100vh;
+  padding: 10px;
+  box-sizing: border-box;
+  overflow: auto;
+}
