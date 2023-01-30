@@ -1,4 +1,4 @@
-throw 'newer version was in dev-layers/presentation-layer/components'
+// throw 'newer version was in dev-layers/presentation-layer/components'
 
 export class SplitView {
   constructor (parent, options={}) {
